@@ -7,7 +7,7 @@ GeoPredict is a disaster prediction system designed to forecast and monitor eart
 ### 1. Real-Time Data Collection
 GeoPredict fetches live earthquake and weather data using publicly available APIs such as:
 - **USGS Earthquake API** - Provides real-time earthquake activity worldwide.
-- **OpenWeather API** - Supplies weather data, including rainfall predictions and storm tracking.
+- **Meteo API** - Supplies weather data, including rainfall predictions and storm tracking.
 
 ### 2. Predictive Modeling
 The system leverages:
@@ -34,7 +34,6 @@ Ensure you have the following installed:
 - **Django Framework** - The backbone of the web application.
 - **Pip (Python Package Installer)** - Required for installing dependencies.
 - **Virtualenv (Optional but Recommended)** - Helps manage project dependencies.
-- **PostgreSQL or SQLite** - Database to store historical data.
 
 ### Steps to Install
 
@@ -91,18 +90,20 @@ GeoPredict/
 ## API Integration
 GeoPredict integrates the following APIs:
 - **USGS Earthquake API:** Fetches global seismic activity.
-- **OpenWeather API:** Provides weather forecasts and storm predictions.
-- **Google Maps API (Optional):** Used for mapping disaster locations.
+- **Meteo API:** Provides weather forecasts and storm predictions.
 
 ## Contributors
-- **Pratik CSE** - Developer & Maintainer
+- **Pratik Rane** - Developer & Maintainer
+- **Kartik Sambre** - Developer
+- **Tanuj Jain** - Developer
+- **Anvay Naik** - Developer
 
 ## License
 This project is licensed under the **MIT License**.
 
 ## Acknowledgments
 - **Django Community** - For providing an excellent web framework.
-- **OpenWeather API** - For real-time weather data.
+- **Meteo API** - For real-time weather data.
 - **USGS Earthquake API** - For live earthquake updates.
 
 For any issues or contributions, feel free to submit a pull request or open an issue in the repository!
