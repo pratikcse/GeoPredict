@@ -1,0 +1,10 @@
+Django
+google-generativeai
+openmeteo_requests
+requests-cache
+pandas
+numpy
+statsmodels
+retry-requests
+requests
+geopy
