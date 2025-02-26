@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather & Chart Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #141e30, #243b55);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+        }
+
+
+        .container {
+            display: flex;
+            gap: 20px;
+            width: 90%;
+            max-width: 2000px;
+            justify-content: center;
+        }
+
+
+        .card {
+            background: linear-gradient(135deg, #283048, #859398);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            height: 450px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transition: all 0.4s ease-in-out;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        .card.expanded {
+            height: 500px;
+        }
+
+
+        .card-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .card.expanded .card-content {
+            display: block;
+            opacity: 1;
+        }
+
+
+        .card-content canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+
+
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .card {
+                width: 90%;
+            }
+        }
+        .chart-container {
+            width: 30vw;
+            height: 40vh;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .earthquake-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        nav {
+            width: 95%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            background: transparent;
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li {
+            display: inline-block;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 500;
+            transition: color 0.3s ease-in-out;
+        }
+
+        nav ul li a:hover, .active {
+            color: #4CAF50;
+        }
+
+
+        
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo" ><a href="{% url 'main' %}" class="active" style="color: whitesmoke;">🌍 GeoPredictor</a></div>
+        <ul>
+            <li><a href="{% url 'home' %}" class="active" style="color: whitesmoke;">Storm Forecast🌪</a></li>
+            <li><a href="{% url 'earth' %}" class="active" style="color: whitesmoke;">Earthquake🌎</a></li>
+            <li><a href="{% url 'rehab' %}" class="active" style="color: whitesmoke;">Rehab🟢</a></li>
+        </ul>
+    </nav>
+
+
+    <div class="container">
+
+        <div class="card" id="weatherCard">
+            <h2>Latest Earthquake</h2>
+
+            {% if earthquakes %}
+            {% with earthquake=earthquakes.0 %}  
+                <p><strong>Magnitude:</strong> {{ earthquake.magnitude }}</p>
+                <p><strong>Location:</strong> {{ earthquake.place }}</p>
+                <p><strong>Date & Time:</strong> {{ earthquake.time|date:"Y-m-d H:i:s" }}</p>
+                <p><strong>Depth:</strong> {{ earthquake.coordinates.2 }} km</p>
+                <p><strong>Coordinates:</strong> {{ earthquake.coordinates.1 }}°N, {{ earthquake.coordinates.0 }}°E</p>
+            {% endwith %}
+        {% else %}
+            <p>No earthquake data available.</p>
+        {% endif %}
+        </div>
+
+
+        <div class="card" id="lineChartCard">
+                <h2>Data Chart 📊</h2>
+                <div class="chart-container">
+                    <canvas id="earthquakeChart" style="display: block; box-sizing: border-box; height: 250px; width: 500px;"></canvas>
+                </div>
+        </div>
+    </div>
+
+    <script>
+
+        const earthquakeData = {
+            labels: [
+                {% for earthquake in earthquakes|slice:":4" %}
+                    "{{ earthquake.time|date:'Y-m-d' }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Magnitude',
+                data: [
+                    {% for earthquake in earthquakes|slice:":4" %}
+                        {{ earthquake.magnitude }},
+                    {% endfor %}
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                pointRadius: 5,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                tension: 0.4
+            }]
+        };
+
+
+        const ctx = document.getElementById('earthquakeChart').getContext('2d');
+        const earthquakeChart = new Chart(ctx, {
+            type: 'line',
+            data: earthquakeData,
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Magnitude',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const label = context.dataset.label || '';
+                                const value = context.raw || 0;
+                                const location = [
+                                    {% for earthquake in earthquakes|slice:":4" %}
+                                        "{{ earthquake.place }}",
+                                    {% endfor %}
+                                ][context.dataIndex];
+                                return `${label}: ${value} (Location: ${location})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        document.getElementById('weatherCard').addEventListener('click', function() {
+            this.classList.toggle('expanded');
+            document.getElementById('lineChartCard').classList.remove('expanded');
+        });
+
+        document.getElementById('lineChartCard').addEventListener('click', function() {
+            this.classList.toggle('expanded');
+            document.getElementById('weatherCard').classList.remove('expanded');
+        });
+    </script>
+
+</body>
+</html>

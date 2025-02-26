@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <style>
+         table {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid;
+        }
+        th {
+            background-color: #5d6369;
+            color: white;
+            font-weight: bold;
+        }
+    
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            color: #fff;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        .overlay {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 2500px;
+            height: 70vh; 
+            max-height: 80vh;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+        }
+
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+
+        input {
+            width: 50%;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+
+        button {
+            padding: 12px 18px;
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+        }
+
+
+        button:hover {
+            background: linear-gradient(135deg, #e68900, #d84315);
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(255, 87, 34, 0.4);
+        }
+
+
+        .weather-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .weather-card {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            width: 350px;
+            height: 500px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .weather-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+
+        @media (max-width: 768px) {
+            input {
+                width: 80%;
+            }
+        }
+
+        #live-weather{height: 700px;}
+
+        .forecast-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            color:#fff
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #007BFF;
+            font-size: 1.5em;
+        }
+        .card p {
+            margin: 10px 0;
+            font-size: 1em;
+        }
+        .card p strong {
+        }
+        .weather-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+
+        
+
+            nav {
+            width: 93%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            background: transparent;
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li {
+            display: inline-block;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 500;
+            transition: color 0.3s ease-in-out;
+        }
+
+        nav ul li a:hover, .active {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="video-container">
+        <video autoplay loop muted playsinline>
+            <source src="{% static 'clouds.mp4' %}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <nav>
+        <div class="logo" ><a href="{% url 'main' %}" class="active" style="color: whitesmoke;">🌍 GeoPredictor</a></div>
+        <ul>
+            <li><a href="{% url 'home' %}" class="active" style="color: whitesmoke;">Storm Forecast🌪</a></li>
+            <li><a href="{% url 'earth' %}" class="active" style="color: whitesmoke;">Earthquake🌎</a></li>
+            <li><a href="{% url 'rehab' %}" class="active" style="color: whitesmoke;">Rehab🟢</a></li>
+        </ul>
+    </nav>
+
+
+    <div class="overlay">
+        <div class="container">
+            <h1>Weather Forecast</h1>
+
+            <div class="weather-cards">
+                <div class="weather-card" id="live-weather" style="height: 500px;width: 450px;">
+                    <h2>Current Weather Data</h2>
+                    <table>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                        {% for key, value in weather_info.items %}
+                        <tr>
+                            <td>{{ key }}</td>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <h2>Location</h2>
+                    <p>{{ add }}</p>
+                </div>
+                <div class="weather-card" id="forecast" style="height: 500px;width: 750px;" >
+                    <br>
+                    <br>
+                    <div class="forecast-container" >
+                        {% for date, data in forecast_info.items %}
+                            <div class="card" style="height: 400px;width: 300px;">
+                                <h3>{{ date }}</h3>
+                                <div class="weather-icon">🌤️</div>
+                                {% for key, value in data.items %}
+                                    <p><strong>{{ key }}:</strong> {{ value }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="weather-card" id="storm-updates-card" style="height: 500px;width: 450px;">
+                    <h2>Previous Storm Occurance</h2>
+                    <div class="box" id="response3" style="display: block;">Loading response 3...</div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'script.js' %}"></script>
+</body>
+</html>

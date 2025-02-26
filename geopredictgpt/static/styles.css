@@ -1,0 +1,146 @@
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    color: #fff;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Background Video */
+.video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Overlay to keep content visible */
+.overlay {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Container - Adjusted Height */
+.container {
+    width: 85%;
+    max-width: 1100px;
+    height: 80vh; /* Reduced height */
+    max-height: 80vh; /* Keeps it from being too large */
+    margin: auto;
+    background: rgba(0, 0, 0, 0.6); /* Darker shade */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+}
+
+/* Title */
+h1 {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+/* Search Box */
+.search-box {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Stylish Input Field */
+input {
+    width: 50%;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transition: 0.3s;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Placeholder Styling */
+input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Input Focus Glow Effect */
+input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* Attractive Search Button */
+button {
+    padding: 12px 18px;
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+}
+
+/* Button Hover Animation */
+button:hover {
+    background: linear-gradient(135deg, #e68900, #d84315);
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(255, 87, 34, 0.4);
+}
+
+/* Weather Cards */
+.weather-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Weather Cards - Reduced Height */
+.weather-card {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 20px;
+    width: 350px;
+    height: 700px; /* Adjusted height */
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+/* Hover Effect */
+.weather-card:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    input {
+        width: 80%;
+    }
+}
+
+#live-weather{height: 700px;}
