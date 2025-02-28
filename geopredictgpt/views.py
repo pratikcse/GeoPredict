@@ -89,7 +89,7 @@ def gemini_api3(request):
     return JsonResponse({'response': response})
 
 
-GOOGLE_API_KEY = "AIzaSyDjwsK1OMbi52uXGINe6ZY33stzXz29IdA"
+GOOGLE_API_KEY = "gemini_key"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 model = genai.GenerativeModel('gemini-1.5-pro-latest')
