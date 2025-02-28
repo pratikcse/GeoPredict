@@ -12,6 +12,12 @@ import requests
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import json
+from django.shortcuts import render
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
+from django.conf import settings
+import os
+from requests.adapters import HTTPAdapter, Retry
 
 #LOCATION AND COORDINATES
 
@@ -28,6 +34,9 @@ def get_location(ip_address):
     return data['lat'], data['lon']
 
 lat, lon = get_location(ip_address)
+
+lat = 25.26
+lon = 82.99
 
 def reverse_geocode(lat, lon):
     geolocator = Nominatim(user_agent="GeoPredictApp") 
@@ -56,7 +65,7 @@ def get_gemini_response(prompt):
 
 PROMPT_1 = "Provide a list of emergency contact numbers and government helplines for disaster response in {address}. Only list the numbers and relevant agencies—no explanations, no additional details."
 PROMPT_2 = "List essential safety precautions to follow before, during, and after a storm. Keep it brief and structured—no explanations, just key actionable points."
-PROMPT_3 = "Given the coordinates {lat},{lon}, list at least 5 nearby cities or districts within 200 km that recently experienced storms. Return only the city or district names, separated by commas."
+PROMPT_3 = "Given the coordinates {lat}, {lon}, list at least 5 nearby cities or districts within a 200 km radius that are known to be prone to storms. Return the output as a numbered list with each city/district on a new line. Do not include detailed descriptions, only the city or district names."
 
 
 def gemini_api(request):
@@ -74,7 +83,7 @@ def gemini_api3(request):
     return JsonResponse({'response': response})
 
 
-GOOGLE_API_KEY = "AIzaSyAIfu5jtEw_OubjkhkcUVO0DsSwqVWSCTY"
+GOOGLE_API_KEY = "AIzaSyDjwsK1OMbi52uXGINe6ZY33stzXz29IdA"
 genai.configure(api_key=GOOGLE_API_KEY)
 
 model = genai.GenerativeModel('gemini-1.5-pro-latest')
@@ -141,7 +150,22 @@ def get_nearest_hospitals(lat, lon):
 
     return hospitals
 
+
+def retry(session, retries=3, backoff_factor=0.3, status_forcelist=(500, 502, 504)):
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
+
 def home(request):
+
     cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
     retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
     openmeteo = openmeteo_requests.Client(session=retry_session)
@@ -163,11 +187,11 @@ def home(request):
     current = response.Current()
     weather_info = {
         "Current Time": current.Time(),
-        "Temperature (°C)": current.Variables(0).Value(),
-        "Precipitation (mm)": current.Variables(1).Value(),
-        "Weather Code": current.Variables(2).Value(),
-        "Cloud Cover (%)": current.Variables(3).Value(),
-        "Wind Speed (m/s)": current.Variables(4).Value(),
+        "Temperature (°C)": round(current.Variables(0).Value(), 5),
+        "Precipitation (mm)": round(current.Variables(1).Value(), 5),
+        "Weather Code": round(current.Variables(2).Value(), 5),
+        "Cloud Cover (%)": round(current.Variables(3).Value(), 5),
+        "Wind Speed (m/s)": round(current.Variables(4).Value(), 5),
     }
 
     daily = response.Daily()
@@ -195,7 +219,7 @@ def home(request):
     for col in columns_to_forecast:
         model = ARIMA(daily_dataframe[col], order=(5, 1, 0)) 
         model_fit = model.fit()
-        forecast = model_fit.forecast(steps=2)  
+        forecast = model_fit.forecast(steps=2) 
         forecast_results[col] = forecast.values
 
     today = pd.Timestamp.now().normalize()
@@ -204,21 +228,21 @@ def home(request):
     forecast_info = {
         "Today": {
             "Date": future_dates[0].strftime("%Y-%m-%d"),
-            "Temperature (°C)": forecast_results["temperature_2m_max"][0],
-            "Precipitation (mm)": forecast_results["precipitation_sum"][0],
-            "Rain (mm)": forecast_results["rain_sum"][0],
-            "Showers (mm)": forecast_results["showers_sum"][0],
-            "Snowfall (mm)": forecast_results["snowfall_sum"][0],
-            "Precipitation Probability (%)": forecast_results["precipitation_probability_max"][0],
+            "Temperature (°C)": round(forecast_results["temperature_2m_max"][0], 5),
+            "Precipitation (mm)": round(forecast_results["precipitation_sum"][0], 5),
+            "Rain (mm)": round(forecast_results["rain_sum"][0], 5),
+            "Showers (mm)": round(forecast_results["showers_sum"][0], 5),
+            "Snowfall (mm)": round(forecast_results["snowfall_sum"][0], 5),
+            "Precipitation Probability (%)": round(forecast_results["precipitation_probability_max"][0], 5),
         },
         "Tomorrow": {
             "Date": future_dates[1].strftime("%Y-%m-%d"),
-            "Temperature (°C)": forecast_results["temperature_2m_max"][1],
-            "Precipitation (mm)": forecast_results["precipitation_sum"][1],
-            "Rain (mm)": forecast_results["rain_sum"][1],
-            "Showers (mm)": forecast_results["showers_sum"][1],
-            "Snowfall (mm)": forecast_results["snowfall_sum"][1],
-            "Precipitation Probability (%)": forecast_results["precipitation_probability_max"][1],
+            "Temperature (°C)": round(forecast_results["temperature_2m_max"][1], 5),
+            "Precipitation (mm)": round(forecast_results["precipitation_sum"][1], 5),
+            "Rain (mm)": round(forecast_results["rain_sum"][1], 5),
+            "Showers (mm)": round(forecast_results["showers_sum"][1], 5),
+            "Snowfall (mm)": round(forecast_results["snowfall_sum"][1], 5),
+            "Precipitation Probability (%)": round(forecast_results["precipitation_probability_max"][1], 5),
         },
     }
 
@@ -258,7 +282,7 @@ def rehab(request):
     return render(request, "rehab.html", {
         "lat": lat,
         "lon": lon,
-        "hospitals": json.dumps(hospitals) 
+        "hospitals": json.dumps(hospitals)
     })
 
 
