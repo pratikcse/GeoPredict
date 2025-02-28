@@ -18,6 +18,12 @@ from google.oauth2 import service_account
 from django.conf import settings
 import os
 from requests.adapters import HTTPAdapter, Retry
+from .models import Patient, Donation
+from .forms import DonationForm
+from django.db.models import Q
+from django.shortcuts import redirect
+
+
 
 #LOCATION AND COORDINATES
 
@@ -278,11 +284,30 @@ def earth(request):
 def rehab(request):
 
     hospitals = get_nearest_hospitals(lat, lon)
+    query = request.GET.get('q', '')  # Default to an empty string if 'q' is None
+    if query:
+        patients = Patient.objects.filter(
+            Q(name__icontains=query) | Q(patient_id__icontains=query)
+        )
+    else:
+        patients = Patient.objects.all()
+
+    
+    donations = Donation.objects.all().order_by('-date')  # Fetch all donations
+    form = DonationForm()
+
+    if request.method == "POST":
+        form = DonationForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save donation to the database
+            return redirect('rehab')  # Redirect to clear the form
 
     return render(request, "rehab.html", {
         "lat": lat,
         "lon": lon,
-        "hospitals": json.dumps(hospitals)
+        "hospitals": json.dumps(hospitals),
+        'patients': patients,
+        'query': query,'form': form, 'donations': donations
     })
 
 
