@@ -78,7 +78,7 @@ python manage.py migrate
 - Obtain a **Gemini API key** from [Google AI](https://ai.google.com/)
 - Open the `views.py` file and update the key:
 ```python
-GOOGLE_API_KEY = "your_gemini_api_key_here"
+GOOGLE_API_KEY = "gemini_key"
 ```
 
 #### 6. Run the Server
