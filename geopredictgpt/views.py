@@ -41,9 +41,6 @@ def get_location(ip_address):
 
 lat, lon = get_location(ip_address)
 
-lat = 25.26
-lon = 82.99
-
 def reverse_geocode(lat, lon):
     geolocator = Nominatim(user_agent="GeoPredictApp") 
     try:
